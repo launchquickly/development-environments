@@ -5,6 +5,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/wily64"
   
+  config.vm.hostname = 'default.launchquickly.com'
   config.vm.network :private_network, ip: '192.168.50.50'
 
   # Share additional folders to the guest VM.
@@ -34,12 +35,37 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
+     wget https://apt.puppetlabs.com/puppetlabs-release-pc1-wily.deb
+     sudo dpkg -i puppetlabs-release-pc1-wily.deb
      sudo apt-get update
+     sudo apt-get install -y puppet-agent
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
      echo -e '#{File.read("#{Dir.home}/.gitconfig")}' > '/home/vagrant/.gitconfig'
   SHELL
+  
+   # vagrant-r10k plugin configuration
+  config.r10k.puppet_dir      = '../lq-control-repo/'
+  config.r10k.puppetfile_path = '../lq-control-repo/Puppetfile'
+  config.r10k.module_path     = "../lq-control-repo/modules"
+  
+  config.vm.provision "puppet" do |puppet|
+  
+    puppet.environment = 'development'
+
+    puppet.manifests_path    = "../lq-control-repo/manifests"
+    puppet.manifest_file     = "site.pp"
+    puppet.module_path       = ["../lq-control-repo/site", "../lq-control-repo/modules"]
+    puppet.hiera_config_path = "hiera.yaml"
+
+    puppet.options = "--verbose --debug "
+
+    puppet.facter = {
+      "environment" => 'development',
+    }
+        
+  end
 
   # Set up SSH agent forwarding for git amongst others.
   config.ssh.forward_agent = true
