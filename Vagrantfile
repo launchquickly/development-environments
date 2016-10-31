@@ -1,6 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+environments = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'environments.json')))
 env_path = '/etc/puppetlabs/code/environments/lq_control_repo'
 ctrl_repo = 'lq_control_repo'
 
@@ -8,9 +9,6 @@ Vagrant.configure(2) do |config|
 
   config.vm.box = "ubuntu/wily64"
   
-  config.vm.hostname = 'default.launchquickly.com'
-  config.vm.network :private_network, ip: '192.168.50.50'
-
   # Share additional folders to the guest VM.
   # Code
   config.vm.synced_folder "../src", "/usr/local/src", create: true, type: "nfs"
@@ -22,17 +20,24 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider "virtualbox" do |vb|
-     # Display the VirtualBox GUI when booting the machine
-     vb.gui = true
-
-     vb.memory = "8192"
-
-     vb.cpus = 2
      vb.customize ["modifyvm", :id, "--ioapic", "on"]
 
      # this line enables communication over host VPN connection by guest
      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+  
+  environments.each do |opts|
+    config.vm.define opts['name'] do |env|
+      env.vm.hostname = opts['hostname']
+      env.vm.network :private_network, ip: opts['ip']
+    
+      env.vm.provider "virtualbox" do |v|
+        v.gui = opts['gui']
+        v.memory = opts['memory']
+        v.cpus = opts['cpus']
+      end
+    end
   end
 
   config.vm.provision "shell", inline: <<-SHELL
