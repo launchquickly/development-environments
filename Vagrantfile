@@ -11,14 +11,12 @@ Vagrant.configure(2) do |config|
   # Share additional folders to the guest VM.
   # Code
   config.vm.synced_folder "../src", "/usr/local/src", create: true, type: "nfs"
-  # Maven repository
-  config.vm.synced_folder "../maven/repository", "/home/vagrant/.m2/repository", create: true, type: "nfs"
-  # Eclipse preferences
-  config.vm.synced_folder "config/eclipse", "/home/vagrant/config/eclipse", create: true, type: "nfs"
+  # Puppet environment
+  config.vm.synced_folder "../lq_control_repo/", "/etc/puppetlabs/code/environments/lq_control_repo/", create: true
   # SSH directory mount
   config.vm.synced_folder "~/.ssh", "/home/vagrant/config/.ssh", create: true, type: "nfs"
   # Disable vagrant folder
-  config.vm.synced_folder ".", "/vagrant", disabled: true
+  #config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine
@@ -46,25 +44,32 @@ Vagrant.configure(2) do |config|
   SHELL
   
    # vagrant-r10k plugin configuration
-  config.r10k.puppet_dir      = '../lq-control-repo/'
-  config.r10k.puppetfile_path = '../lq-control-repo/Puppetfile'
-  config.r10k.module_path     = "../lq-control-repo/modules"
+  config.r10k.puppet_dir      = '../lq_control_repo/'
+  config.r10k.puppetfile_path = '../lq_control_repo/Puppetfile'
+  config.r10k.module_path     = "../lq_control_repo/modules"
+  
+  config.vm.provision "shell" do |s|
+    s.inline = <<-SHELL
+        
+    sudo rm -rf /etc/puppetlabs/code/hiera.yaml
+    sudo ln -s /vagrant/hiera.yaml /etc/puppetlabs/code/hiera.yaml
+
+    cat <<EOT >> /etc/puppetlabs/puppet/puppet.conf
+[main]
+environment = lq_control_repo
+EOT
+        SHELL
+  end
   
   config.vm.provision "puppet" do |puppet|
   
-    puppet.environment = 'development'
+    puppet.environment_path = ".."
+    puppet.environment = 'lq_control_repo'
 
-    puppet.manifests_path    = "../lq-control-repo/manifests"
-    puppet.manifest_file     = "site.pp"
-    puppet.module_path       = ["../lq-control-repo/site", "../lq-control-repo/modules"]
-    puppet.hiera_config_path = "hiera.yaml"
+    puppet.module_path    = ["../lq_control_repo/modules", "../lq_control_repo/site"]
 
     puppet.options = "--verbose --debug "
 
-    puppet.facter = {
-      "environment" => 'development',
-    }
-        
   end
 
   # Set up SSH agent forwarding for git amongst others.
