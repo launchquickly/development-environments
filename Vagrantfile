@@ -37,12 +37,6 @@ Vagrant.configure(2) do |config|
      sudo dpkg -i puppetlabs-release-pc1-wily.deb
      sudo apt-get update
      sudo apt-get install -y puppet-agent
-     
-     cat <<EOT >> /etc/puppetlabs/puppet/puppet.conf
-[main]
-environment = lq_control_repo
-EOT
-
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
