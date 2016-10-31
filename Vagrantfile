@@ -16,7 +16,7 @@ Vagrant.configure(2) do |config|
   # SSH directory mount
   config.vm.synced_folder "~/.ssh", "/home/vagrant/config/.ssh", create: true, type: "nfs"
   # Disable vagrant folder
-  #config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider "virtualbox" do |vb|
      # Display the VirtualBox GUI when booting the machine
@@ -37,6 +37,12 @@ Vagrant.configure(2) do |config|
      sudo dpkg -i puppetlabs-release-pc1-wily.deb
      sudo apt-get update
      sudo apt-get install -y puppet-agent
+     
+     cat <<EOT >> /etc/puppetlabs/puppet/puppet.conf
+[main]
+environment = lq_control_repo
+EOT
+
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
@@ -47,19 +53,6 @@ Vagrant.configure(2) do |config|
   config.r10k.puppet_dir      = '../lq_control_repo/'
   config.r10k.puppetfile_path = '../lq_control_repo/Puppetfile'
   config.r10k.module_path     = "../lq_control_repo/modules"
-  
-  config.vm.provision "shell" do |s|
-    s.inline = <<-SHELL
-        
-    sudo rm -rf /etc/puppetlabs/code/hiera.yaml
-    sudo ln -s /vagrant/hiera.yaml /etc/puppetlabs/code/hiera.yaml
-
-    cat <<EOT >> /etc/puppetlabs/puppet/puppet.conf
-[main]
-environment = lq_control_repo
-EOT
-        SHELL
-  end
   
   config.vm.provision "puppet" do |puppet|
   
