@@ -41,7 +41,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-     wget https://apt.puppetlabs.com/puppetlabs-release-pc1-wily.deb
+     wget --no-check-certificate https://apt.puppetlabs.com/puppetlabs-release-pc1-wily.deb
      dpkg -i puppetlabs-release-pc1-wily.deb
      apt-get update
      apt-get install -y puppet-agent
