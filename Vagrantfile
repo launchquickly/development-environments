@@ -55,7 +55,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
      echo -e '#{File.read("#{Dir.home}/.gitconfig")}' > '/home/vagrant/.gitconfig'
      
-    ln -s /usr/local/src /home/vagrant/src
+    ln -sf /usr/local/src /home/vagrant/src
   SHELL
   
   config.vm.provision "puppet" do |puppet|
