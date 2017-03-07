@@ -4,18 +4,20 @@
 environments = JSON.parse(File.read(File.join(File.dirname(__FILE__), 'environments.json')))
 env_path = '/etc/puppetlabs/code/environments/lq_control_repo'
 ctrl_repo = 'lq_control_repo'
+user = 'ubuntu'
+ubuntu_version = 'xenial'
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "ubuntu/wily64"
+  config.vm.box = "ubuntu/#{ubuntu_version}64"
   
   # Share additional folders to the guest VM.
   # Code
-  config.vm.synced_folder "../src", "/usr/local/src", create: true, type: "nfs"
+  config.vm.synced_folder "~/dev/src", "/usr/local/src", create: true
   # Puppet environment
-  config.vm.synced_folder "../#{ctrl_repo}", env_path, create: true
+  config.vm.synced_folder "../#{ctrl_repo}", env_path, create: true 
   # SSH directory mount
-  config.vm.synced_folder "~/.ssh", "/home/vagrant/config/.ssh", create: true, type: "nfs"
+  config.vm.synced_folder "~/.ssh", "/home/#{user}/config/.ssh", create: false
   # Disable vagrant folder
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
@@ -41,8 +43,8 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-     wget --no-check-certificate https://apt.puppetlabs.com/puppetlabs-release-pc1-wily.deb
-     dpkg -i puppetlabs-release-pc1-wily.deb
+     wget --no-check-certificate "https://apt.puppetlabs.com/puppetlabs-release-pc1-#{ubuntu_version}.deb"
+     dpkg -i "puppetlabs-release-pc1-#{ubuntu_version}.deb"
      apt-get update
      apt-get install -y puppet-agent
      
@@ -53,9 +55,9 @@ Vagrant.configure(2) do |config|
   SHELL
 
   config.vm.provision "shell", inline: <<-SHELL
-     echo -e '#{File.read("#{Dir.home}/.gitconfig")}' > '/home/vagrant/.gitconfig'
+     echo -e '#{File.read("#{Dir.home}/.gitconfig")}' > "/home/#{user}/.gitconfig"
      
-    ln -sf /usr/local/src /home/vagrant/src
+#     ln -sf /usr/local/src "/home/#{user}/src"
   SHELL
   
   config.vm.provision "puppet" do |puppet|
