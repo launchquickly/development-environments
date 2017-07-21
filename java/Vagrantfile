@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "../../lq_control_repo", '/etc/puppetlabs/code/environments/lq_control_repo', create: true 
 
   # Code
-  config.vm.synced_folder "~/dev/src", "/home/vagrant/src", create: true
+  config.vm.synced_folder "~/dev/src", "/home/vagrant/dev/src", create: true
 
   # SSH directory mount
   config.vm.synced_folder "~/.ssh", "/home/vagrant/config/.ssh", create: false

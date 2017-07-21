@@ -16,10 +16,10 @@ Vagrant based development environment for developing Java
 - Ubuntu 16.04
 - Puppet Agent
 - Open JDK 8
-- Maven 3
+- Maven 3.3.9
 
 ## Directories mapped from guest
 
-- /home/vagrant/src is mapped from ~/dev/src
+- /home/vagrant/dev/src is mapped from ~/dev/src
 - /home/vagrant/config/.ssh is mapped from ~/.ssh
 - /etc/puppetlabs/code/environments/lq_control_repo is mapped from ../../lq_control_repo
