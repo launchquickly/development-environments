@@ -16,14 +16,6 @@
         "ip": "192.168.50.51"
     },
     {
-        "name": "javadev",
-        "hostname": "javadev.launchquickly.com",
-        "gui": true,
-        "memory": 8192,
-        "cpus": 2,
-        "ip": "192.168.50.52"
-    },
-    {
         "name": "elmdev",
         "hostname": "elmdev.launchquickly.com",
         "gui": true,
