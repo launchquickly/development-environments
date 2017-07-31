@@ -3,7 +3,7 @@
 
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "box-cutter/ubuntu1604-desktop"
+  config.vm.box = "box-cutter/ubuntu1610-desktop"
   config.vm.hostname = 'javadev.launchquickly.com'
 
   # Puppet environment
@@ -21,8 +21,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
-    wget --no-check-certificate "https://apt.puppetlabs.com/puppetlabs-release-pc1-xenial.deb"
-    dpkg -i "puppetlabs-release-pc1-xenial.deb"
+    wget --no-check-certificate "https://apt.puppetlabs.com/puppetlabs-release-pc1-yakkety.deb"
+    dpkg -i "puppetlabs-release-pc1-yakkety.deb"
 
     apt-get update
     apt-get install -y puppet-agent
