@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "box-cutter/ubuntu1610-desktop"
+  config.vm.hostname = 'awsdev.launchquickly.com'
+
+  # Puppet environment
+  config.vm.synced_folder "../../lq_control_repo", '/etc/puppetlabs/code/environments/lq_control_repo', create: true 
+
+  # Code
+  config.vm.synced_folder "~/dev/src", "/home/vagrant/dev/src", create: true
+
+  # SSH directory mount
+  config.vm.synced_folder "~/.ssh", "/home/vagrant/config/.ssh", create: false
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = "4096"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    wget --no-check-certificate "https://apt.puppetlabs.com/puppetlabs-release-pc1-yakkety.deb"
+    dpkg -i "puppetlabs-release-pc1-yakkety.deb"
+
+    apt-get update
+    apt-get install -y puppet-agent
+    apt-get autoremove -y
+    apt-get autoclean -y
+
+    /opt/puppetlabs/puppet/bin/gem install r10k
+    /opt/puppetlabs/puppet/bin/r10k puppetfile install --puppetfile "/etc/puppetlabs/code/environments/lq_control_repo/Puppetfile" --moduledir "/etc/puppetlabs/code/environments/lq_control_repo/modules"
+
+    echo -e '#{File.read("#{Dir.home}/.gitconfig")}' > "/home/vagrant/.gitconfig"
+  SHELL
+
+  config.vm.provision "puppet" do |puppet|
+    puppet.environment_path = "../.."
+    puppet.environment = 'lq_control_repo'
+  end
+
+  # Set up SSH agent forwarding for git amongst others.
+  config.ssh.forward_agent = true
+end
