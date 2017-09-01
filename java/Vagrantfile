@@ -23,8 +23,12 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     wget --no-check-certificate "https://apt.puppetlabs.com/puppetlabs-release-pc1-yakkety.deb"
     dpkg -i "puppetlabs-release-pc1-yakkety.deb"
+    
+    # set grub-pc default to avoid upgrade failure
+    echo "set grub-pc/install_devices /dev/sda" | debconf-communicate
 
-    apt-get update
+    apt-get -y update
+    apt-get -y upgrade
     apt-get install -y puppet-agent
     apt-get autoremove -y
     apt-get autoclean -y
